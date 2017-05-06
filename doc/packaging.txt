@@ -1,0 +1,9 @@
+Packaging
+===============================================================================
+
+In order to be able to use absolute import paths on intra-package referencing,
+it is good practice to implement a package.
+For that, we created data_mapper/setup.py and ran pip3 install -e data_mapper.
+By adding the -e flag to the pip install command a symlink to the source files
+is installed instead to the byte-code compiled source, so there is no need to 
+re-install the package on any changes (if I've understood it correctly).
