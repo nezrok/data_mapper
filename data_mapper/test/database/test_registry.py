@@ -21,6 +21,50 @@ class TestDatabaseRegistry(unittest.TestCase):
     Tests for class DatabaseRegistry.
     """
 
+    # =========================================================================
+    # Define some paths to profile files, needed in some unittests below.
+
+    def resolve_file_path(path):
+        """
+        Returns the absolute file path to given path that is seen as a path,
+        relative to the directory in which this script is stored.
+        """
+        dirname = os.path.realpath(os.path.dirname(__file__))
+        return os.path.join(dirname, path)
+
+    # Define the path to a profiles file that does not exist.
+    profiles_file_not_existing = resolve_file_path(
+        "resources/db_profiles_not_existing.conf"
+    )
+    # Define the path to a profiles file that is not readable.
+    profiles_file_not_readable = resolve_file_path(
+        "resources/db_profiles_not_readable.conf"
+    )
+    # Define the path to a profiles file that is malformed.
+    profiles_file_malformed = resolve_file_path(
+        "resources/db_profiles_malformed.conf"
+    )
+    # Define the path to a profiles file that contains a profile with no db
+    # system.
+    profiles_file_no_system = resolve_file_path(
+        "resources/db_profiles_no_db_system.conf"
+    )
+    # Define the path to a profiles file that contains a profile with an
+    # invalid db system.
+    profiles_file_invalid_system = resolve_file_path(
+        "resources/db_profiles_no_db_system.conf"
+    )
+    # Define the path to a profiles file that contains a single valid profile.
+    profiles_file_single_profile = resolve_file_path(
+        "resources/db_profiles_single_profile.conf"
+    )
+    # Define the path to a profiles file that contains two valid profiles.
+    profiles_file_two_profiles = resolve_file_path(
+        "resources/db_profiles_two_profiles.conf"
+    )
+
+    # =========================================================================
+
     def tearDown(self):
         """
         Define actions to execute after each unittest method.
@@ -43,10 +87,8 @@ class TestDatabaseRegistry(unittest.TestCase):
         """
         Tests the method clear() *with* initializing the registry before.
         """
-        # Initialize the registry.
-        DatabaseRegistry.initialize(
-            self.resolve_file_path("db_profiles_single_profile.conf")
-        )
+        # Initialize the registry in order to have a registered profile.
+        DatabaseRegistry.initialize(self.profiles_file_single_profile)
 
         # Make sure, that there are registered databases and profiles now.
         self.assertTrue(len(DatabaseRegistry.registered_databases) > 0)
@@ -83,10 +125,8 @@ class TestDatabaseRegistry(unittest.TestCase):
         Tests the method initialize() *with* passing a path to a profile
         config file, containing a single profile.
         """
-        # Initialize the registry.
-        DatabaseRegistry.initialize(
-            self.resolve_file_path("db_profiles_single_profile.conf")
-        )
+        # Initialize the registry in order to have a registered profile.
+        DatabaseRegistry.initialize(self.profiles_file_single_profile)
 
         # Make sure that there are registered databases and exactly one
         # registered profile.
@@ -99,10 +139,8 @@ class TestDatabaseRegistry(unittest.TestCase):
         Tests the method initialize() *with* passing a path to a profile
         config file, containing two profiles.
         """
-        # Initialize the registry.
-        DatabaseRegistry.initialize(
-            self.resolve_file_path("db_profiles_two_profiles.conf")
-        )
+        # Initialize the registry in order to have two registered profiles.
+        DatabaseRegistry.initialize(self.profiles_file_two_profiles)
 
         # Make sure that there are registered databases and exactly two
         # registered profiles.
@@ -324,9 +362,7 @@ class TestDatabaseRegistry(unittest.TestCase):
         registered profile.
         """
         # Initialize the registry in order to have a registered profile.
-        DatabaseRegistry.initialize(
-            self.resolve_file_path("db_profiles_single_profile.conf")
-        )
+        DatabaseRegistry.initialize(self.profiles_file_single_profile)
 
         # Get a database without a profile.
         database = DatabaseRegistry.get_database()
@@ -343,9 +379,7 @@ class TestDatabaseRegistry(unittest.TestCase):
         registered profiles.
         """
         # Initialize the registry in order to have two registered profiles.
-        DatabaseRegistry.initialize(
-            self.resolve_file_path("db_profiles_two_profiles.conf")
-        )
+        DatabaseRegistry.initialize(self.profiles_file_two_profiles)
 
         # Get a database without a profile.
         database = DatabaseRegistry.get_database()
@@ -375,9 +409,7 @@ class TestDatabaseRegistry(unittest.TestCase):
         registered profile.
         """
         # Initialize the registry in order to have a single registered profile.
-        DatabaseRegistry.initialize(
-            self.resolve_file_path("db_profiles_single_profile.conf")
-        )
+        DatabaseRegistry.initialize(self.profiles_file_single_profile)
 
         # Get a database with an invalid profile name.
         with self.assertRaises(GetProfileError) as context:
@@ -401,9 +433,7 @@ class TestDatabaseRegistry(unittest.TestCase):
         registered profiles.
         """
         # Initialize the registry in order to have a single registered profile.
-        DatabaseRegistry.initialize(
-            self.resolve_file_path("db_profiles_two_profiles.conf")
-        )
+        DatabaseRegistry.initialize(self.profiles_file_two_profiles)
 
         # Get a database with an invalid profile name.
         with self.assertRaises(GetProfileError) as context:
@@ -464,9 +494,7 @@ class TestDatabaseRegistry(unittest.TestCase):
         invalid profile.
         """
         # Initialize the registry in order to have a single registered profile.
-        DatabaseRegistry.initialize(
-            self.resolve_file_path("db_profiles_single_profile.conf")
-        )
+        DatabaseRegistry.initialize(self.profiles_file_single_profile)
 
         # Get a database with a valid profile name *and* an invalid profile.
         database = DatabaseRegistry.get_database(
@@ -487,9 +515,7 @@ class TestDatabaseRegistry(unittest.TestCase):
         valid profile.
         """
         # Initialize the registry in order to have a single registered profile.
-        DatabaseRegistry.initialize(
-            self.resolve_file_path("db_profiles_single_profile.conf")
-        )
+        DatabaseRegistry.initialize(self.profiles_file_single_profile)
 
         # Get a database with an invalid profile name *and* a valid profile.
         profile = DatabaseProfile("DummyProfile", system="mysql")
@@ -508,9 +534,7 @@ class TestDatabaseRegistry(unittest.TestCase):
         profile.
         """
         # Initialize the registry in order to have a single registered profile.
-        DatabaseRegistry.initialize(
-            self.resolve_file_path("db_profiles_single_profile.conf")
-        )
+        DatabaseRegistry.initialize(self.profiles_file_single_profile)
 
         # Get a database with an valid profile name *and* a valid profile.
         profile = DatabaseProfile("DummyProfile", system="mysql")
@@ -567,9 +591,7 @@ class TestDatabaseRegistry(unittest.TestCase):
         Tests the method get_profile() with a valid profile_name.
         """
         # Initialize the registry in order to have a registered profile.
-        DatabaseRegistry.initialize(
-            self.resolve_file_path("db_profiles_single_profile.conf")
-        )
+        DatabaseRegistry.initialize(self.profiles_file_single_profile)
 
         # Get a profile.
         profile = DatabaseRegistry.get_profile("my-profile")
@@ -862,9 +884,7 @@ class TestDatabaseRegistry(unittest.TestCase):
         Tests the method validate_profile_name() with an invalid profile name.
         """
         # Initialize the registry in order to have registered profiles.
-        DatabaseRegistry.initialize(
-            self.resolve_file_path("db_profiles_single_profile.conf")
-        )
+        DatabaseRegistry.initialize(self.profiles_file_single_profile)
 
         # Validate an invalid profile name.
         with self.assertRaises(DataMapperError) as context:
@@ -878,9 +898,7 @@ class TestDatabaseRegistry(unittest.TestCase):
         Tests the method validate_profile_name() with a valid profile name.
         """
         # Initialize the registry in order to have registered profiles.
-        DatabaseRegistry.initialize(
-            self.resolve_file_path("db_profiles_single_profile.conf")
-        )
+        DatabaseRegistry.initialize(self.profiles_file_single_profile)
 
         # Make sure that the validation succeeded.
         validated = DatabaseRegistry.validate_profile_name("my-profile")
@@ -896,7 +914,7 @@ class TestDatabaseRegistry(unittest.TestCase):
         # Read from a non-existing file.
         with self.assertRaises(ParseProfileConfigFileError) as context:
             DatabaseRegistry.read_profiles_from_file(
-                self.resolve_file_path("db_profiles_not_exists.conf")
+                self.profiles_file_not_existing
             )
         # We expect the error code 1.
         self.assertEqual(context.exception.code, 1)
@@ -908,19 +926,19 @@ class TestDatabaseRegistry(unittest.TestCase):
         # Read from a non-readable file.
         with self.assertRaises(ParseProfileConfigFileError) as context:
             DatabaseRegistry.read_profiles_from_file(
-                self.resolve_file_path("db_profiles_not_readable.conf")
+                self.profiles_file_not_readable
             )
         # We expect the error code 2.
         self.assertEqual(context.exception.code, 2)
 
-    def test_read_db_profiles_with_corrupt_file(self):
+    def test_read_db_profiles_with_malformed_file(self):
         """
-        Tests the method read_profiles_from_file() with a corrupt file.
+        Tests the method read_profiles_from_file() with a malformed file.
         """
-        # Read from a corrupt (malformed) file.
+        # Read from a malformed file.
         with self.assertRaises(ParseProfileConfigFileError) as context:
             DatabaseRegistry.read_profiles_from_file(
-                self.resolve_file_path("db_profiles_corrupt.conf")
+                self.profiles_file_malformed
             )
         # We expect the error code 3.
         self.assertEqual(context.exception.code, 3)
@@ -935,7 +953,7 @@ class TestDatabaseRegistry(unittest.TestCase):
 
         # Read from a valid file with a single profile.
         db_profiles = DatabaseRegistry.read_profiles_from_file(
-             self.resolve_file_path("db_profiles_single_profile.conf")
+             self.profiles_file_single_profile
         )
 
         # Make sure that a proper instance of DatabaseProfile was returned.
@@ -960,7 +978,7 @@ class TestDatabaseRegistry(unittest.TestCase):
 
         # Read from a valid file with two profiles.
         db_profiles = DatabaseRegistry.read_profiles_from_file(
-             self.resolve_file_path("db_profiles_two_profiles.conf")
+             self.profiles_file_two_profiles
         )
 
         # Make sure that two proper instances of DatabaseProfile were returned.
@@ -984,14 +1002,3 @@ class TestDatabaseRegistry(unittest.TestCase):
         self.assertEqual(second_profile.user, "Hans Dampf")
         self.assertEqual(second_profile.password, None)
         self.assertEqual(second_profile.db, "test")
-
-    # =========================================================================
-    # Utility methods.
-
-    def resolve_file_path(self, path):
-        """
-        Returns the absolute file path to given path that is seen as a path,
-        relative to the directory in which this script is stored.
-        """
-        dirname = os.path.realpath(os.path.dirname(__file__))
-        return os.path.join(dirname, path)
