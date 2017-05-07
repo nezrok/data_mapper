@@ -4,14 +4,13 @@ import configparser
 
 from collections import OrderedDict
 
-from data_mapper.exceptions import DataMapperError
-
 from data_mapper.database.base import Database
 from data_mapper.database.base import DatabaseProfile
 from data_mapper.database.base import DatabaseSystem
-
 from data_mapper.database.mysql import MySQLDatabase
 from data_mapper.database.sqlite import SQLiteDatabase
+
+from data_mapper.exceptions import DataMapperError
 
 
 class DatabaseRegistry:
