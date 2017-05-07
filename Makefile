@@ -1,6 +1,6 @@
 PYTHON = python3
 CHECKSTYLE = flake8
-PYTHON_FILES = $(shell find . -name "*.py")
+PYTHON_FILES = $(shell find data_mapper -type f -name "*.py")
 
 all: test checkstyle
 
@@ -12,7 +12,7 @@ doctest:
 
 unittest:
 	@echo "Running unittest"
-	@$(PYTHON) -m unittest discover -s test/ -p test*.py
+	@$(PYTHON) -m unittest discover -s data_mapper/test/ -p test*.py
 
 checkstyle:
 	@echo "Running checkstyle"
