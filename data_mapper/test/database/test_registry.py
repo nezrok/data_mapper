@@ -22,12 +22,12 @@ class TestDatabaseRegistry(unittest.TestCase):
     """
 
     # =========================================================================
-    # Define some paths to profile files, needed in some unittests below.
+    # Define some paths to profile files, needed in the unittests below.
 
     def resolve_file_path(path):
         """
-        Returns the absolute file path to given path that is seen as a path,
-        relative to the directory in which this script is stored.
+        Returns the absolute file path to the given path that is seen as a
+        path, relative to the directory in which this script is stored.
         """
         dirname = os.path.realpath(os.path.dirname(__file__))
         return os.path.join(dirname, path)
@@ -44,13 +44,11 @@ class TestDatabaseRegistry(unittest.TestCase):
     profiles_file_malformed = resolve_file_path(
         "resources/db_profiles_malformed.conf"
     )
-    # Define the path to a profiles file that contains a profile with no db
-    # system.
+    # Define the path to a profiles file with a profile with no db system.
     profiles_file_no_system = resolve_file_path(
         "resources/db_profiles_no_db_system.conf"
     )
-    # Define the path to a profiles file that contains a profile with an
-    # invalid db system.
+    # Define the path to a profiles file with a profile with an invalid system.
     profiles_file_invalid_system = resolve_file_path(
         "resources/db_profiles_no_db_system.conf"
     )
@@ -67,37 +65,33 @@ class TestDatabaseRegistry(unittest.TestCase):
 
     def tearDown(self):
         """
-        Define actions to execute after each unittest method.
+        Defines actions to execute after each unittest method.
         """
         DatabaseRegistry.clear()
 
     # =========================================================================
     # Tests for the method clear().
 
-    def test_clear_uninitialized(self):
+    def test_clear(self):
         """
-        Tests the method clear() *without* initializing the registry before.
+        Tests the method clear().
         """
+        # Test the method, given that the registry is uninitialized.
         DatabaseRegistry.clear()
-        self.assertEqual(len(DatabaseRegistry.registered_databases), 0)
-        self.assertEqual(len(DatabaseRegistry.registered_profiles), 0)
+        # Make sure that there are no registered databases and profiles.
+        self.assertTrue(len(DatabaseRegistry.registered_databases) == 0)
+        self.assertTrue(len(DatabaseRegistry.registered_profiles) == 0)
         self.assertFalse(DatabaseRegistry.is_initialized)
 
-    def test_clear_initialized(self):
-        """
-        Tests the method clear() *with* initializing the registry before.
-        """
         # Initialize the registry in order to have a registered profile.
         DatabaseRegistry.initialize(self.profiles_file_single_profile)
-
         # Make sure, that there are registered databases and profiles now.
         self.assertTrue(len(DatabaseRegistry.registered_databases) > 0)
         self.assertTrue(len(DatabaseRegistry.registered_profiles) > 0)
         self.assertTrue(DatabaseRegistry.is_initialized)
 
-        # Clear the registry.
+        # Clear the registry again.
         DatabaseRegistry.clear()
-
         # Make sure, that there are *no* registered databases and profiles now.
         self.assertTrue(len(DatabaseRegistry.registered_databases) == 0)
         self.assertTrue(len(DatabaseRegistry.registered_profiles) == 0)
@@ -114,8 +108,7 @@ class TestDatabaseRegistry(unittest.TestCase):
         # Initialize the registry.
         DatabaseRegistry.initialize()
 
-        # Make sure that there are registered databases, but no registered
-        # profiles.
+        # Make sure that there are registered databases, but no profiles.
         self.assertTrue(len(DatabaseRegistry.registered_databases) > 0)
         self.assertTrue(len(DatabaseRegistry.registered_profiles) == 0)
         self.assertTrue(DatabaseRegistry.is_initialized)
@@ -123,13 +116,12 @@ class TestDatabaseRegistry(unittest.TestCase):
     def test_initialize_with_profile_file_with_single_profile(self):
         """
         Tests the method initialize() *with* passing a path to a profile
-        config file, containing a single profile.
+        config file that contains a single profile.
         """
         # Initialize the registry in order to have a registered profile.
         DatabaseRegistry.initialize(self.profiles_file_single_profile)
 
-        # Make sure that there are registered databases and exactly one
-        # registered profile.
+        # Make sure that there are databases and exactly one profile.
         self.assertTrue(len(DatabaseRegistry.registered_databases) > 0)
         self.assertTrue(len(DatabaseRegistry.registered_profiles) == 1)
         self.assertTrue(DatabaseRegistry.is_initialized)
@@ -137,13 +129,12 @@ class TestDatabaseRegistry(unittest.TestCase):
     def test_initialize_with_profile_file_with_two_profiles(self):
         """
         Tests the method initialize() *with* passing a path to a profile
-        config file, containing two profiles.
+        config file that contains two profiles.
         """
         # Initialize the registry in order to have two registered profiles.
         DatabaseRegistry.initialize(self.profiles_file_two_profiles)
 
-        # Make sure that there are registered databases and exactly two
-        # registered profiles.
+        # Make sure that there are databases and exactly two profiles.
         self.assertTrue(len(DatabaseRegistry.registered_databases) > 0)
         self.assertTrue(len(DatabaseRegistry.registered_profiles) == 2)
         self.assertTrue(DatabaseRegistry.is_initialized)
@@ -155,10 +146,9 @@ class TestDatabaseRegistry(unittest.TestCase):
         """
         Tests the method register_database() *without* passing a database.
         """
-        # Register a "None" database.
+        # Try to register a database "None". Make sure that an error is raised.
         with self.assertRaises(RegisterDatabaseError) as context:
             DatabaseRegistry.register_database(None)
-
         # We expect the error code 1.
         self.assertEqual(context.exception.code, 1)
 
@@ -171,10 +161,9 @@ class TestDatabaseRegistry(unittest.TestCase):
         class DummyDatabase:
             pass
 
-        # Register the database.
+        # Try to register the database. Make sure that an error is raised.
         with self.assertRaises(RegisterDatabaseError) as context:
             DatabaseRegistry.register_database(DummyDatabase)
-
         # We expect the error code 2.
         self.assertEqual(context.exception.code, 2)
 
@@ -187,10 +176,9 @@ class TestDatabaseRegistry(unittest.TestCase):
         class DummyDatabase(Database):
             system = "DummySystem"
 
-        # Register the database.
+        # Try to register the database. Make sure that an error is raised.
         with self.assertRaises(RegisterDatabaseError) as context:
             DatabaseRegistry.register_database(DummyDatabase)
-
         # We expect the error code 3.
         self.assertEqual(context.exception.code, 3)
 
@@ -202,7 +190,7 @@ class TestDatabaseRegistry(unittest.TestCase):
         class DummyDatabase(Database):
             system = DatabaseSystem.MYSQL
 
-        # Register the database.
+        # Register the database. Make sure that *no* error is raised.
         DatabaseRegistry.register_database(DummyDatabase)
         registered_databases = DatabaseRegistry.registered_databases
 
@@ -218,38 +206,39 @@ class TestDatabaseRegistry(unittest.TestCase):
         """
         Tests the method register_profile() *without* passing a profile.
         """
-        # Register a "None" profile.
+        # Try to register a profile "None". Make sure that an error is raised.
         with self.assertRaises(RegisterProfileError) as context:
             DatabaseRegistry.register_profile(None)
-
         # We expect the error code 1.
         self.assertEqual(context.exception.code, 1)
 
     def test_register_database_with_invalid_profile(self):
         """
-        Tests the method register_profile() with an object that is not an
+        Tests the method register_profile() *with* an object that is *not* an
         instance of DatabaseProfile.
         """
-        # Register the profile.
+        # Try to register a profile that is not an instance of DatabaseProfile.
+        # Make sure that an error is raised.
         with self.assertRaises(RegisterProfileError) as context:
             DatabaseRegistry.register_profile(object())
-
         # We expect the error code 2.
         self.assertEqual(context.exception.code, 2)
 
     def test_register_profile_with_no_name(self):
         """
-        Tests the method register_profile() with no name / empty names.
+        Tests the method register_profile() with no/empty name.
         """
-        # Register a profile with no name.
+        # Try to register a profile that has no name.
         profile = DatabaseProfile(None)
+        # Make sure that an error is raised.
         with self.assertRaises(RegisterProfileError) as context:
             DatabaseRegistry.register_profile(profile)
         # We expect the error code 3.
         self.assertEqual(context.exception.code, 3)
 
-        # Register a profile with an empty name.
+        # Try to register a profile with an empty name.
         profile = DatabaseProfile("")
+        # Make sure that an error is raised.
         with self.assertRaises(RegisterProfileError) as context:
             DatabaseRegistry.register_profile(profile)
         # We expect the error code 3.
@@ -257,6 +246,7 @@ class TestDatabaseRegistry(unittest.TestCase):
 
         # Register a profile with a name that consists only of white spaces.
         profile = DatabaseProfile("     ")
+        # Make sure that an error is raised.
         with self.assertRaises(RegisterProfileError) as context:
             DatabaseRegistry.register_profile(profile)
         # We expect the error code 3.
@@ -266,22 +256,25 @@ class TestDatabaseRegistry(unittest.TestCase):
         """
         Tests the method register_profile() with no/empty database system.
         """
-        # Register a profile with no system.
+        # Try to register a profile that has no system.
         profile = DatabaseProfile("myprofile")
+        # Make sure that an error is raised.
         with self.assertRaises(RegisterProfileError) as context:
             DatabaseRegistry.register_profile(profile)
         # We expect the error code 4.
         self.assertEqual(context.exception.code, 4)
 
-        # Register a profile with an empty system.
+        # Try to register a profile with an empty system.
         profile = DatabaseProfile("myprofile", system="")
+        # Make sure that an error is raised.
         with self.assertRaises(RegisterProfileError) as context:
             DatabaseRegistry.register_profile(profile)
         # We expect the error code 4.
         self.assertEqual(context.exception.code, 4)
 
-        # Register a profile with a system that consists only of white spaces.
+        # Try to register a profile with a system that consists only of spaces.
         profile = DatabaseProfile("myprofile", system="    ")
+        # Make sure that an error is raised.
         with self.assertRaises(RegisterProfileError) as context:
             DatabaseRegistry.register_profile(profile)
         # We expect the error code 4.
@@ -289,13 +282,14 @@ class TestDatabaseRegistry(unittest.TestCase):
 
     def test_register_profile_with_invalid_db_system(self):
         """
-        Tests the method register_profile() with an invalid database system.
+        Tests the method register_profile() with an profile that has an invalid
+        database system.
         """
-        # Register a profile with an invalid system "dummy".
+        # Try to register a profile with an invalid system "dummy".
         profile = DatabaseProfile("myprofile", system="dummy")
+        # Make sure that an error is raised.
         with self.assertRaises(RegisterProfileError) as context:
             DatabaseRegistry.register_profile(profile)
-
         # We expect the error code 5.
         self.assertEqual(context.exception.code, 5)
 
@@ -306,36 +300,31 @@ class TestDatabaseRegistry(unittest.TestCase):
         # Initialize the registry in order to have registered databases.
         DatabaseRegistry.initialize()
 
-        # ---
-        # (1) Register a profile with valid profile.
+        # Test the method three times, each time with the same system, but
+        # different cases (to check if system validation is case-insensitive).
+
+        # (1) Try to register a profile with system "mysql".
+        # Make sure that *no* error is raised.
         profile = DatabaseProfile("myprofile", system="mysql")
         DatabaseRegistry.register_profile(profile)
-
-        # Make sure that the profile was registered successfully.
         registered_profiles = DatabaseRegistry.registered_profiles
         self.assertEqual(len(registered_profiles), 1)
         self.assertTrue(profile.name in registered_profiles)
         self.assertTrue(profile in registered_profiles.values())
 
-        # -----
-        # Make sure that the validation of the database system is
-        # case-insensitive.
-
-        # (2) Register a profile with valid profile (alternative cases).
+        # (2) Try to register a profile with system "MYSQL".
+        # Make sure that *no* error is raised.
         profile = DatabaseProfile("myprofile", system="MYSQL")
         DatabaseRegistry.register_profile(profile)
-
-        # Make sure that the profile was registered successfully.
         registered_profiles = DatabaseRegistry.registered_profiles
         self.assertEqual(len(registered_profiles), 1)
         self.assertTrue(profile.name in registered_profiles)
         self.assertTrue(profile in registered_profiles.values())
 
-        # (3) Register a profile with valid profile (alternative cases).
+        # (3) Try to register a profile with system "mYsQl".
+        # Make sure that *no* error is raised.
         profile = DatabaseProfile("myprofile", system="mYsQl")
         DatabaseRegistry.register_profile(profile)
-
-        # Make sure that the profile was registered successfully.
         registered_profiles = DatabaseRegistry.registered_profiles
         self.assertEqual(len(registered_profiles), 1)
         self.assertTrue(profile.name in registered_profiles)
@@ -344,211 +333,414 @@ class TestDatabaseRegistry(unittest.TestCase):
     # =========================================================================
     # Tests for method get_database()
 
-    def test_get_database_with_no_profile_and_no_registered_dbs(self):
+    def test_get_database_with_no_profile_and_no_profile_name(self):
         """
-        Tests the method get_database() with no given profile and no registered
-        databases.
+        Tests the method get_database() with no given profile and no given
+        profile name.
         """
-        # Get a database without a profile (no registered databases given).
+        # Test the method when *no* databases and *no* profiles are registered.
+        # Make sure that an error is raised.
         with self.assertRaises(GetProfileError) as context:
             DatabaseRegistry.get_database()
-
         # We expect the error code 3.
         self.assertEqual(context.exception.code, 3)
 
-    def test_get_database_with_no_profile_and_single_registered_db(self):
-        """
-        Tests the method get_database() with no given profile and a single
-        registered profile.
-        """
-        # Initialize the registry in order to have a registered profile.
+        # Test the method when databases but *no* profiles are registered.
+        DatabaseRegistry.initialize()
+        # Make sure that an error is raised.
+        with self.assertRaises(GetProfileError) as context:
+            DatabaseRegistry.get_database()
+        # We expect the error code 3.
+        self.assertEqual(context.exception.code, 3)
+
+        # Test the method when a single profile is registered.
         DatabaseRegistry.initialize(self.profiles_file_single_profile)
-
-        # Get a database without a profile.
         database = DatabaseRegistry.get_database()
-
-        # Make sure that the *latest* registered database is returned.
+        # Make sure that the database for the *latest* profile is returned.
         self.assertIsNotNone(database)
         self.assertIsNotNone(database.db_profile)
         self.assertEqual(database.system, DatabaseSystem.MYSQL)
         self.assertEqual(database.db_profile.name, "my-profile")
 
-    def test_get_database_with_no_profile_and_two_registered_dbs(self):
-        """
-        Tests the method get_database() with no given profile and two
-        registered profiles.
-        """
-        # Initialize the registry in order to have two registered profiles.
+        # Test the method when two profiles are registered.
         DatabaseRegistry.initialize(self.profiles_file_two_profiles)
-
-        # Get a database without a profile.
         database = DatabaseRegistry.get_database()
-
         # Make sure that the *latest* registered database is returned.
         self.assertIsNotNone(database)
         self.assertIsNotNone(database.db_profile)
         self.assertEqual(database.system, DatabaseSystem.SQLITE)
         self.assertEqual(database.db_profile.name, "second-profile")
 
-    def test_get_database_with_profile_name_and_no_registered_dbs(self):
+    def test_get_database_with_profile_name(self):
         """
-        Tests the method get_database() with given profile name and no
-        registered profiles.
+        Tests the method get_database() with given profile name.
         """
-        # Get the database related to the profile with name "my-profile", given
-        # that no profiles are registered.
+        # Test the method when *no* databases and *no* profiles are registered.
+        # Make sure that an error is raised.
         with self.assertRaises(GetProfileError) as context:
             DatabaseRegistry.get_database("my-profile")
-
         # We expect the error code 2.
         self.assertEqual(context.exception.code, 2)
 
-    def test_get_database_with_profile_name_and_single_registered_db(self):
-        """
-        Tests the method get_database() with given profile name and a single
-        registered profile.
-        """
-        # Initialize the registry in order to have a single registered profile.
-        DatabaseRegistry.initialize(self.profiles_file_single_profile)
-
-        # Get a database with an invalid profile name.
+        # Test the method when databases but *no* profiles are registered.
+        DatabaseRegistry.initialize()
+        # Make sure that an error is raised.
         with self.assertRaises(GetProfileError) as context:
-            DatabaseRegistry.get_database("dummy-profile")
-
+            DatabaseRegistry.get_database("my-profile")
         # We expect the error code 2.
         self.assertEqual(context.exception.code, 2)
 
-        # Get a database with an valid profile name.
-        database = DatabaseRegistry.get_database("my-profile")
+        # Test the method when a single profile is registered, but the profile
+        # name "fake-profile" is invalid.
+        DatabaseRegistry.initialize(self.profiles_file_single_profile)
+        # Make sure that an error is raised.
+        with self.assertRaises(GetProfileError) as context:
+            DatabaseRegistry.get_database("fake-profile")
+        # We expect the error code 2.
+        self.assertEqual(context.exception.code, 2)
 
+        # Test the method when a single profile is registered and the profile
+        # name "my-profile" is valid.
+        database = DatabaseRegistry.get_database("my-profile")
         # Make sure that the correct database was returned.
         self.assertIsNotNone(database)
         self.assertIsNotNone(database.db_profile)
         self.assertEqual(database.system, DatabaseSystem.MYSQL)
         self.assertEqual(database.db_profile.name, "my-profile")
 
-    def test_get_database_with_profile_name_and_two_registered_dbs(self):
-        """
-        Tests the method get_database() with given profile name and two
-        registered profiles.
-        """
-        # Initialize the registry in order to have a single registered profile.
+        # Test the method when two profiles are registered and the profile
+        # name "fake-profile" is invalid.
         DatabaseRegistry.initialize(self.profiles_file_two_profiles)
-
-        # Get a database with an invalid profile name.
+        # Make sure that an error is raised.
         with self.assertRaises(GetProfileError) as context:
-            DatabaseRegistry.get_database("dummy-profile")
-
+            DatabaseRegistry.get_database("fake-profile")
         # We expect the error code 2.
         self.assertEqual(context.exception.code, 2)
 
-        # Get a database with an valid profile name.
+        # Test the method when two profiles are registered and the profile
+        # name is valid.
         database = DatabaseRegistry.get_database("first-profile")
-
         # Make sure that the correct database was returned.
         self.assertIsNotNone(database)
         self.assertIsNotNone(database.db_profile)
         self.assertEqual(database.system, DatabaseSystem.MYSQL)
         self.assertEqual(database.db_profile.name, "first-profile")
 
-        # Get a database with an valid profile name.
         database = DatabaseRegistry.get_database("second-profile")
-
         # Make sure that the correct database was returned.
         self.assertIsNotNone(database)
         self.assertIsNotNone(database.db_profile)
         self.assertEqual(database.system, DatabaseSystem.SQLITE)
         self.assertEqual(database.db_profile.name, "second-profile")
 
-    def test_get_database_with_invalid_profile(self):
+    def test_get_database_with_profile(self):
         """
-        Tests the method get_database() with an invalid profile.
+        Tests the method get_database() with given profile.
         """
-        # Get a database with an invalid profile.
+        # ---------------------------------------------------------------------
+        # Test the method when *no* databases and *no* profiles are registered.
+
+        # The given profile is invalid. Make sure that an error is raised.
         with self.assertRaises(GetDatabaseError) as context:
             DatabaseRegistry.get_database(profile=object())
-
         # We expect the error code 2.
         self.assertEqual(context.exception.code, 2)
 
-    def test_get_database_with_valid_profile(self):
-        """
-        Tests the method get_database() with an valid profile.
-        """
-        # Initialize the registry in order to have registered databases.
+        # The given profile has no name. Make sure that an error is raised.
+        profile = DatabaseProfile(None, system="mysql")
+        with self.assertRaises(GetDatabaseError) as context:
+            DatabaseRegistry.get_database(profile=profile)
+        # We expect the error code 3.
+        self.assertEqual(context.exception.code, 3)
+
+        # The given profile has no system. Make sure that an error is raised.
+        profile = DatabaseProfile(None)
+        with self.assertRaises(GetDatabaseError) as context:
+            DatabaseRegistry.get_database(profile=profile)
+        # We expect the error code 3.
+        self.assertEqual(context.exception.code, 3)
+
+        # The profile has an invalid system. Make sure that an error is raised.
+        profile = DatabaseProfile(None, system="dummy")
+        with self.assertRaises(GetDatabaseError) as context:
+            DatabaseRegistry.get_database(profile=profile)
+        # We expect the error code 3.
+        self.assertEqual(context.exception.code, 3)
+
+        # The given profile is valid. Make sure that an error is raised
+        # (because there are no registered databases).
+        profile = DatabaseProfile("DummyProfile", system="mysql")
+        with self.assertRaises(GetDatabaseError) as context:
+            DatabaseRegistry.get_database(profile=profile)
+        # We expect the error code 5.
+        self.assertEqual(context.exception.code, 5)
+
+        # ---------------------------------------------------------------------
+        # Test the method when databases but no profiles are registered.
         DatabaseRegistry.initialize()
 
-        # Get a database with a valid profile.
+        # The given profile is invalid. Make sure that an error is raised.
+        with self.assertRaises(GetDatabaseError) as context:
+            DatabaseRegistry.get_database(profile=object())
+        # We expect the error code 2.
+        self.assertEqual(context.exception.code, 2)
+
+        # The given profile has no name. Make sure that an error is raised.
+        profile = DatabaseProfile(None, system="mysql")
+        with self.assertRaises(GetDatabaseError) as context:
+            DatabaseRegistry.get_database(profile=profile)
+        # We expect the error code 3.
+        self.assertEqual(context.exception.code, 3)
+
+        # The given profile has no system. Make sure that an error is raised.
+        profile = DatabaseProfile(None)
+        with self.assertRaises(GetDatabaseError) as context:
+            DatabaseRegistry.get_database(profile=profile)
+        # We expect the error code 3.
+        self.assertEqual(context.exception.code, 3)
+
+        # The profile has an invalid system. Make sure that an error is raised.
+        profile = DatabaseProfile(None, system="dummy")
+        with self.assertRaises(GetDatabaseError) as context:
+            DatabaseRegistry.get_database(profile=profile)
+        # We expect the error code 3.
+        self.assertEqual(context.exception.code, 3)
+
+        # The given profile is valid. Make sure that *no* exception is raised.
         profile = DatabaseProfile("DummyProfile", system="mysql")
         database = DatabaseRegistry.get_database(profile=profile)
-
-        # Make sure that the correct database was returned.
         self.assertIsNotNone(database)
         self.assertIsNotNone(database.db_profile)
         self.assertEqual(database.system, DatabaseSystem.MYSQL)
         self.assertEqual(database.db_profile.name, "DummyProfile")
 
-    def test_get_database_with_valid_profile_name_and_invalid_profile(self):
-        """
-        Tests the method get_database() with an valid profile name and a
-        invalid profile.
-        """
-        # Initialize the registry in order to have a single registered profile.
+        # ---------------------------------------------------------------------
+        # Test the method when databases and a single profile is registered.
         DatabaseRegistry.initialize(self.profiles_file_single_profile)
 
-        # Get a database with a valid profile name *and* an invalid profile.
-        database = DatabaseRegistry.get_database(
-            profile_name="my-profile",
-            profile=DatabaseProfile("DummyProfile", system="dummy")
-        )
+        # The given profile is invalid. Make sure that an error is raised.
+        with self.assertRaises(GetDatabaseError) as context:
+            DatabaseRegistry.get_database(profile=object())
+        # We expect the error code 2.
+        self.assertEqual(context.exception.code, 2)
 
-        # Make sure that the profile related to the valid profile name was
-        # returned.
+        # The given profile has no name. Make sure that an error is raised.
+        profile = DatabaseProfile(None, system="mysql")
+        with self.assertRaises(GetDatabaseError) as context:
+            DatabaseRegistry.get_database(profile=profile)
+        # We expect the error code 3.
+        self.assertEqual(context.exception.code, 3)
+
+        # The given profile has no system. Make sure that an error is raised.
+        profile = DatabaseProfile(None)
+        with self.assertRaises(GetDatabaseError) as context:
+            DatabaseRegistry.get_database(profile=profile)
+        # We expect the error code 3.
+        self.assertEqual(context.exception.code, 3)
+
+        # The profile has an invalid system. Make sure that an error is raised.
+        profile = DatabaseProfile(None, system="dummy")
+        with self.assertRaises(GetDatabaseError) as context:
+            DatabaseRegistry.get_database(profile=profile)
+        # We expect the error code 3.
+        self.assertEqual(context.exception.code, 3)
+
+        # The given profile is valid. Make sure that *no* exception is raised.
+        profile = DatabaseProfile("DummyProfile", system="mysql")
+        database = DatabaseRegistry.get_database(profile=profile)
         self.assertIsNotNone(database)
         self.assertIsNotNone(database.db_profile)
         self.assertEqual(database.system, DatabaseSystem.MYSQL)
-        self.assertEqual(database.db_profile.name, "my-profile")
+        self.assertEqual(database.db_profile.name, "DummyProfile")
 
-    def test_get_database_with_invalid_profile_name_and_valid_profile(self):
-        """
-        Tests the method get_database() with an invalid profile name and a
-        valid profile.
-        """
-        # Initialize the registry in order to have a single registered profile.
+        # ---------------------------------------------------------------------
+        # Test the method when databases and two profiles are registered.
         DatabaseRegistry.initialize(self.profiles_file_single_profile)
 
-        # Get a database with an invalid profile name *and* a valid profile.
+        # The given profile is invalid. Make sure that an error is raised.
+        with self.assertRaises(GetDatabaseError) as context:
+            DatabaseRegistry.get_database(profile=object())
+        # We expect the error code 2.
+        self.assertEqual(context.exception.code, 2)
+
+        # The given profile has no name. Make sure that an error is raised.
+        profile = DatabaseProfile(None, system="mysql")
+        with self.assertRaises(GetDatabaseError) as context:
+            DatabaseRegistry.get_database(profile=profile)
+        # We expect the error code 3.
+        self.assertEqual(context.exception.code, 3)
+
+        # The given profile has no system. Make sure that an error is raised.
+        profile = DatabaseProfile(None)
+        with self.assertRaises(GetDatabaseError) as context:
+            DatabaseRegistry.get_database(profile=profile)
+        # We expect the error code 3.
+        self.assertEqual(context.exception.code, 3)
+
+        # The profile has an invalid system. Make sure that an error is raised.
+        profile = DatabaseProfile(None, system="dummy")
+        with self.assertRaises(GetDatabaseError) as context:
+            DatabaseRegistry.get_database(profile=profile)
+        # We expect the error code 3.
+        self.assertEqual(context.exception.code, 3)
+
+        # The given profile is valid. Make sure that *no* exception is raised.
         profile = DatabaseProfile("DummyProfile", system="mysql")
+        database = DatabaseRegistry.get_database(profile=profile)
+        self.assertIsNotNone(database)
+        self.assertIsNotNone(database.db_profile)
+        self.assertEqual(database.system, DatabaseSystem.MYSQL)
+        self.assertEqual(database.db_profile.name, "DummyProfile")
+
+    def test_get_database_with_profile_name_and_profile(self):
+        """
+        Tests the method get_database() with a profile name and a profile.
+        """
+        # ---------------------------------------------------------------------
+        # Test the method when *no* databases and *no* profiles are registered.
+
+        # The profile name is empty *and* the profile is valid. Make sure that
+        # an error is raised (because profile_name is preferred).
+        with self.assertRaises(GetProfileError) as context:
+            DatabaseRegistry.get_database(
+                profile_name="",
+                profile=DatabaseProfile("DummyProfile", system="mysql")
+            )
+        # We expect the error code 1.
+        self.assertEqual(context.exception.code, 1)
+
+        # The profile name is invalid *and* the profile is valid. Make sure
+        # that an error is raised (because profile_name is preferred).
         with self.assertRaises(GetProfileError) as context:
             DatabaseRegistry.get_database(
                 profile_name="xxx",
-                profile=profile
+                profile=DatabaseProfile("DummyProfile", system="mysql")
             )
-        # We expect the error code 2 (because we favor the profile name, if
-        # one is given).
+        # We expect the error code 2.
         self.assertEqual(context.exception.code, 2)
 
-    def test_get_database_with_valid_profile_name_and_valid_profile(self):
-        """
-        Tests the method get_database() with an valid profile name and a valid
-        profile.
-        """
-        # Initialize the registry in order to have a single registered profile.
+        # The profile name *and* the profile is valid. Make sure that an error
+        # is raised (because profile_name is preferred and there are no
+        # registered databases).
+        with self.assertRaises(GetProfileError) as context:
+            DatabaseRegistry.get_database(
+                profile_name="mysql",
+                profile=DatabaseProfile("DummyProfile", system="mysql")
+            )
+        # We expect the error code 2.
+        self.assertEqual(context.exception.code, 2)
+
+        # ---------------------------------------------------------------------
+        # Test the method when databases but *no* profiles are registered.
+        DatabaseRegistry.initialize()
+
+        # The profile name is empty *and* the profile is valid. Make sure that
+        # an error is raised (because profile_name is preferred).
+        with self.assertRaises(GetProfileError) as context:
+            DatabaseRegistry.get_database(
+                profile_name="",
+                profile=DatabaseProfile("DummyProfile", system="mysql")
+            )
+        # We expect the error code 1.
+        self.assertEqual(context.exception.code, 1)
+
+        # The profile name is invalid *and* the profile is valid. Make sure
+        # that an error is raised (because profile_name is preferred).
+        with self.assertRaises(GetProfileError) as context:
+            DatabaseRegistry.get_database(
+                profile_name="xxx",
+                profile=DatabaseProfile("DummyProfile", system="mysql")
+            )
+        # We expect the error code 2.
+        self.assertEqual(context.exception.code, 2)
+
+        # The profile name and the profile is valid. Make sure that an error is
+        # raised (because there are no profiles and profile_name is preferred).
+        with self.assertRaises(GetProfileError) as context:
+            DatabaseRegistry.get_database(
+                profile_name="my-profile",
+                profile=DatabaseProfile("DummyProfile", system="mysql")
+            )
+        # We expect the error code 2.
+        self.assertEqual(context.exception.code, 2)
+
+        # ---------------------------------------------------------------------
+        # Test the method when databases *and* a single profile is registered.
         DatabaseRegistry.initialize(self.profiles_file_single_profile)
 
-        # Get a database with an valid profile name *and* a valid profile.
-        profile = DatabaseProfile("DummyProfile", system="mysql")
+        # The profile name is empty *and* the profile is valid. Make sure that
+        # an error is raised (because profile_name is preferred).
+        with self.assertRaises(GetProfileError) as context:
+            DatabaseRegistry.get_database(
+                profile_name="",
+                profile=DatabaseProfile("DummyProfile", system="mysql")
+            )
+        # We expect the error code 1.
+        self.assertEqual(context.exception.code, 1)
+
+        # The profile name is invalid *and* the profile is valid. Make sure
+        # that an error is raised (because profile_name is preferred).
+        with self.assertRaises(GetProfileError) as context:
+            DatabaseRegistry.get_database(
+                profile_name="xxx",
+                profile=DatabaseProfile("DummyProfile", system="mysql")
+            )
+        # We expect the error code 2.
+        self.assertEqual(context.exception.code, 2)
+
+        # The profile name and the profile is valid.
         database = DatabaseRegistry.get_database(
             profile_name="my-profile",
-            profile=profile
+            profile=DatabaseProfile("DummyProfile", system="mysql")
         )
-
-        # Make sure that the profile related to the profile_name is returned
-        # (we favor the profile_name if one is given).
         self.assertIsNotNone(database)
         self.assertIsNotNone(database.db_profile)
         self.assertEqual(database.system, DatabaseSystem.MYSQL)
         self.assertEqual(database.db_profile.name, "my-profile")
+
+        # ---------------------------------------------------------------------
+        # Test the method when databases *and* two profiles are registered.
+        DatabaseRegistry.initialize(self.profiles_file_two_profiles)
+
+        # The profile name is empty *and* the profile is valid. Make sure that
+        # an error is raised (because profile_name is preferred).
+        with self.assertRaises(GetProfileError) as context:
+            DatabaseRegistry.get_database(
+                profile_name="",
+                profile=DatabaseProfile("DummyProfile", system="mysql")
+            )
+        # We expect the error code 1.
+        self.assertEqual(context.exception.code, 1)
+
+        # The profile name is invalid *and* the profile is valid. Make sure
+        # that an error is raised (because profile_name is preferred).
+        with self.assertRaises(GetProfileError) as context:
+            DatabaseRegistry.get_database(
+                profile_name="xxx",
+                profile=DatabaseProfile("DummyProfile", system="mysql")
+            )
+        # We expect the error code 2.
+        self.assertEqual(context.exception.code, 2)
+
+        # The profile name *and* the profile is valid.
+        database = DatabaseRegistry.get_database(
+            profile_name="first-profile",
+            profile=DatabaseProfile("DummyProfile", system="mysql")
+        )
+        self.assertIsNotNone(database)
+        self.assertIsNotNone(database.db_profile)
+        self.assertEqual(database.system, DatabaseSystem.MYSQL)
+        self.assertEqual(database.db_profile.name, "first-profile")
+
+        # The profile name *and* the profile is valid.
+        database = DatabaseRegistry.get_database(
+            profile_name="second-profile",
+            profile=DatabaseProfile("DummyProfile", system="mysql")
+        )
+        self.assertIsNotNone(database)
+        self.assertIsNotNone(database.db_profile)
+        self.assertEqual(database.system, DatabaseSystem.SQLITE)
+        self.assertEqual(database.db_profile.name, "second-profile")
 
     # =========================================================================
     # Tests for method get_profile()
@@ -557,19 +749,20 @@ class TestDatabaseRegistry(unittest.TestCase):
         """
         Tests the method get_profile() with no/empty profile name.
         """
-        # Get a profile with a "None" profile name.
+        # Get a profile with name None. Make sure that an error is raised.
         with self.assertRaises(GetProfileError) as context:
             DatabaseRegistry.get_profile(None)
         # We expect the error code 1.
         self.assertEqual(context.exception.code, 1)
 
-        # Get a profile with an empty profile name.
+        # Get a profile with an empty name. Make sure that an error is raised.
         with self.assertRaises(GetProfileError) as context:
             DatabaseRegistry.get_profile("")
         # We expect the error code 1.
         self.assertEqual(context.exception.code, 1)
 
-        # Get a profile with a profile name that consists only of white spaces.
+        # Try to get a profile with a name that consists only of white spaces.
+        # Make sure that an error is raised.
         with self.assertRaises(GetProfileError) as context:
             DatabaseRegistry.get_profile("   ")
         # We expect the error code 1.
@@ -579,10 +772,10 @@ class TestDatabaseRegistry(unittest.TestCase):
         """
         Tests the method get_profile() with an invalid profile_name.
         """
-        # Get a profile with an invalid (unregistered) profile name.
+        # Try to get a profile with an invalid (unregistered) profile name.
+        # Make sure that an error is raised.
         with self.assertRaises(GetProfileError) as context:
             DatabaseRegistry.get_profile("dummy")
-
         # We expect the error code 2.
         self.assertEqual(context.exception.code, 2)
 
@@ -593,7 +786,7 @@ class TestDatabaseRegistry(unittest.TestCase):
         # Initialize the registry in order to have a registered profile.
         DatabaseRegistry.initialize(self.profiles_file_single_profile)
 
-        # Get a profile.
+        # Get a profile with valid name.
         profile = DatabaseRegistry.get_profile("my-profile")
 
         # Make sure that the correct profile was returned.
@@ -610,8 +803,7 @@ class TestDatabaseRegistry(unittest.TestCase):
         # Initialize the registry in order to have registered databases.
         DatabaseRegistry.initialize()
 
-        # Get the first registered profile, given that there are no registered
-        # profiles.
+        # Get the first registered profile, given that there are no profiles.
         with self.assertRaises(GetProfileError) as context:
             DatabaseRegistry.get_first_registered_profile()
         # We expect the error code 3.
@@ -645,8 +837,8 @@ class TestDatabaseRegistry(unittest.TestCase):
         # Initialize the registry in order to have registered databases.
         DatabaseRegistry.initialize()
 
-        # Get the last registered profile, given that there are no registered
-        # profiles.
+        # Try to get the last registered profile, given that there are no
+        # registered profiles.
         with self.assertRaises(GetProfileError) as context:
             DatabaseRegistry.get_last_registered_profile()
         # We expect the error code 3.
@@ -680,7 +872,6 @@ class TestDatabaseRegistry(unittest.TestCase):
         # Validate a "None" database.
         with self.assertRaises(DataMapperError) as context:
             DatabaseRegistry.validate_database(None)
-
         # We expect the error code 1.
         self.assertEqual(context.exception.code, 1)
 
@@ -692,11 +883,9 @@ class TestDatabaseRegistry(unittest.TestCase):
         # Define a dummy database that is *not* a subclass of Database.
         class DummyDatabase:
             pass
-
-        # Validate the database.
+        # Validate the database. Make sure that an error is raised.
         with self.assertRaises(DataMapperError) as context:
             DatabaseRegistry.validate_database(DummyDatabase)
-
         # We expect the error code 2.
         self.assertEqual(context.exception.code, 2)
 
@@ -709,10 +898,9 @@ class TestDatabaseRegistry(unittest.TestCase):
         class DummyDatabase(Database):
             system = "DummySystem"
 
-        # Validate the database.
+        # Validate the database. Make sure that an error is raised.
         with self.assertRaises(DataMapperError) as context:
             DatabaseRegistry.validate_database(DummyDatabase)
-
         # We expect the error code 3.
         self.assertEqual(context.exception.code, 3)
 
@@ -735,10 +923,9 @@ class TestDatabaseRegistry(unittest.TestCase):
         """
         Tests the method validate_profile() *without* passing a profile.
         """
-        # Validate a "None" profile.
+        # Validate a "None" profile. Make sure that an error is raised.
         with self.assertRaises(DataMapperError) as context:
             DatabaseRegistry.validate_profile(None)
-
         # We expect the error code 1.
         self.assertEqual(context.exception.code, 1)
 
@@ -747,10 +934,9 @@ class TestDatabaseRegistry(unittest.TestCase):
         Tests the method validate_profile() with an object that is not an
         instance of DatabaseProfile.
         """
-        # Validate an invalid profile.
+        # Validate an invalid profile. Make sure that an error is raised.
         with self.assertRaises(DataMapperError) as context:
             DatabaseRegistry.validate_profile(object())
-
         # We expect the error code 2.
         self.assertEqual(context.exception.code, 2)
 
@@ -760,6 +946,7 @@ class TestDatabaseRegistry(unittest.TestCase):
         """
         # Validate a profile with no name.
         profile = DatabaseProfile(None)
+        # Make sure that an error is raised.
         with self.assertRaises(DataMapperError) as context:
             DatabaseRegistry.validate_profile(profile)
         # We expect the error code 3.
@@ -767,6 +954,7 @@ class TestDatabaseRegistry(unittest.TestCase):
 
         # Validate a profile with an empty name.
         profile = DatabaseProfile("")
+        # Make sure that an error is raised.
         with self.assertRaises(DataMapperError) as context:
             DatabaseRegistry.validate_profile(profile)
         # We expect the error code 3.
@@ -774,6 +962,7 @@ class TestDatabaseRegistry(unittest.TestCase):
 
         # Validate a profile with a name that only consists of white spaces.
         profile = DatabaseProfile("     ")
+        # Make sure that an error is raised.
         with self.assertRaises(DataMapperError) as context:
             DatabaseRegistry.validate_profile(profile)
         # We expect the error code 3.
@@ -785,6 +974,7 @@ class TestDatabaseRegistry(unittest.TestCase):
         """
         # Validate a profile with no system.
         profile = DatabaseProfile("myprofile")
+        # Make sure that an error is raised.
         with self.assertRaises(DataMapperError) as context:
             DatabaseRegistry.validate_profile(profile)
         # We expect the error code 4.
@@ -792,6 +982,7 @@ class TestDatabaseRegistry(unittest.TestCase):
 
         # Validate a profile with an empty system.
         profile = DatabaseProfile("myprofile", system="")
+        # Make sure that an error is raised.
         with self.assertRaises(DataMapperError) as context:
             DatabaseRegistry.validate_profile(profile)
         # We expect the error code 4.
@@ -799,6 +990,7 @@ class TestDatabaseRegistry(unittest.TestCase):
 
         # Validate a profile with a system that consists only of white spaces.
         profile = DatabaseProfile("myprofile", system="    ")
+        # Make sure that an error is raised.
         with self.assertRaises(DataMapperError) as context:
             DatabaseRegistry.validate_profile(profile)
         # We expect the error code 4.
@@ -809,10 +1001,11 @@ class TestDatabaseRegistry(unittest.TestCase):
         Tests the method validate_profile() with an invalid database system.
         """
         # Validate a profile with an invalid system "dummy".
+        # Make sure that an error is raised.
         profile = DatabaseProfile("myprofile", system="dummy")
+        # Make sure that an error is raised.
         with self.assertRaises(DataMapperError) as context:
             DatabaseRegistry.validate_profile(profile)
-
         # We expect the error code 5.
         self.assertEqual(context.exception.code, 5)
 
@@ -822,27 +1015,24 @@ class TestDatabaseRegistry(unittest.TestCase):
         """
         DatabaseRegistry.initialize()
 
+        # Test the method three times, each time with the same system, but
+        # different cases (to check if system validation is case-insensitive).
+
         # (1) Validate a profile with an valid system.
         profile = DatabaseProfile("myprofile", system="mysql")
         validated = DatabaseRegistry.validate_profile(profile)
-
         # Make sure that the validation succeeded.
         self.assertEqual(profile, validated)
-
-        # -----
-        # Make sure that the validation of the system is case-sensitive.
 
         # (2) Define a profile with an valid system (with alternative cases).
         profile = DatabaseProfile("myprofile", system="MYSQL")
         validated = DatabaseRegistry.validate_profile(profile)
-
         # Make sure that the validation succeeded.
         self.assertEqual(profile, validated)
 
         # (3) Define a profile with an valid system (with alternative cases).
         profile = DatabaseProfile("myprofile", system="mYsQl")
         validated = DatabaseRegistry.validate_profile(profile)
-
         # Make sure that the validation succeeded.
         self.assertEqual(profile, validated)
 
@@ -853,25 +1043,26 @@ class TestDatabaseRegistry(unittest.TestCase):
         """
         Tests the method validate_profile_name() with no/empty name.
         """
-        # Validate a "None" name.
+        # Validate a "None" name. Make sure that an error is raised.
         with self.assertRaises(DataMapperError) as context:
             DatabaseRegistry.validate_profile_name(None)
         # We expect the error code 1.
         self.assertEqual(context.exception.code, 1)
 
-        # Validate an empty name.
+        # Validate an empty name. Make sure that an error is raised.
         with self.assertRaises(DataMapperError) as context:
             DatabaseRegistry.validate_profile_name("")
         # We expect the error code 1.
         self.assertEqual(context.exception.code, 1)
 
         # Validate a name that only consists of white spaces.
+        # Make sure that an error is raised.
         with self.assertRaises(DataMapperError) as context:
             DatabaseRegistry.validate_profile_name("    ")
         # We expect the error code 1.
         self.assertEqual(context.exception.code, 1)
 
-        # Test an alternative error to raise.
+        # Test another error to raise. Make sure that an error is raised.
         with self.assertRaises(GetProfileError) as context:
             DatabaseRegistry.validate_profile_name(
                 None, error_to_raise=GetProfileError
@@ -886,10 +1077,9 @@ class TestDatabaseRegistry(unittest.TestCase):
         # Initialize the registry in order to have registered profiles.
         DatabaseRegistry.initialize(self.profiles_file_single_profile)
 
-        # Validate an invalid profile name.
+        # Validate an invalid profile name. Make sure that an error is raised.
         with self.assertRaises(DataMapperError) as context:
             DatabaseRegistry.validate_profile_name("dummy")
-
         # We expect the error code 2.
         self.assertEqual(context.exception.code, 2)
 
@@ -911,7 +1101,7 @@ class TestDatabaseRegistry(unittest.TestCase):
         """
         Tests the method read_profiles_from_file() with a non-existing file.
         """
-        # Read from a non-existing file.
+        # Read from a non-existing file. Make sure that an error is raised.
         with self.assertRaises(ParseProfileConfigFileError) as context:
             DatabaseRegistry.read_profiles_from_file(
                 self.profiles_file_not_existing
@@ -923,7 +1113,7 @@ class TestDatabaseRegistry(unittest.TestCase):
         """
         Tests the method read_profiles_from_file() with a non-readable file.
         """
-        # Read from a non-readable file.
+        # Read from a non-readable file. Make sure that an error is raised.
         with self.assertRaises(ParseProfileConfigFileError) as context:
             DatabaseRegistry.read_profiles_from_file(
                 self.profiles_file_not_readable
@@ -935,7 +1125,7 @@ class TestDatabaseRegistry(unittest.TestCase):
         """
         Tests the method read_profiles_from_file() with a malformed file.
         """
-        # Read from a malformed file.
+        # Read from a malformed file. Make sure that an error is raised.
         with self.assertRaises(ParseProfileConfigFileError) as context:
             DatabaseRegistry.read_profiles_from_file(
                 self.profiles_file_malformed
