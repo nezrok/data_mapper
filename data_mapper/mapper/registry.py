@@ -16,6 +16,26 @@ class MapperRegistry:
     """
     # The registered mappers, per model.
     registered_mappers = OrderedDict()
+    # A boolean flag to indicate whether this registry is initialized.
+    is_initialized = False
+
+    @classmethod
+    def clear(cls):
+        """
+        Clears the registered mappers.
+        """
+        cls.registered_mappers.clear()
+        cls.is_initialized = False
+
+    @classmethod
+    def initialize(cls):
+        """
+        Initializes this mapper registry.
+        """
+        # Clear this registry.
+        cls.clear()
+        # The registry is now initialized.
+        cls.is_initialized = True
 
     # =========================================================================
     # Register methods.
@@ -75,7 +95,7 @@ class MapperRegistry:
         # called before registering a mapper for a model.
         if model not in cls.registered_mappers:
             raise GetMapperError(
-                code=3,
+                code=4,
                 msg="There is no registered mapper for the model '%s'.",
                 args=model
             )
@@ -105,10 +125,17 @@ class MapperRegistry:
                 code=1,
                 msg="No model given."
             )
+        # Check if the model is a class.
+        if not isinstance(model, type):
+            raise error_to_raise(
+                code=2,
+                msg="The given model '%s' is not a class.",
+                args=model
+            )
         # Check if the given model is an instance of Model.
         if not issubclass(model, Model):
             raise error_to_raise(
-                code=2,
+                code=3,
                 msg="The given model '%s' is not a subclass of Model.",
                 args=model
             )
@@ -133,19 +160,19 @@ class MapperRegistry:
         # Check if database fields are given.
         if db_fields is None:
             raise error_to_raise(
-                code=1,
+                code=3,
                 msg="No database fields given."
             )
         # Check if the database fields are given as a dictionary.
         if not isinstance(db_fields, dict):
             raise error_to_raise(
-                code=2,
+                code=4,
                 msg="The database fields must be given as a dictionary."
             )
         # Check if the dict contains at least one database field.
         if len(db_fields) == 0:
             raise error_to_raise(
-                code=3,
+                code=5,
                 msg="No database fields given."
             )
         # Validate each single entry in the given database fields.
@@ -153,14 +180,21 @@ class MapperRegistry:
             # Check if the field name is a string.
             if not isinstance(field_name, str):
                 raise error_to_raise(
-                    code=4,
+                    code=6,
                     msg="The database field name '%s' must be a string.",
+                    args=field_name
+                )
+            # Check if the field name is empty.
+            if len(field_name.strip()) == 0:
+                raise error_to_raise(
+                    code=7,
+                    msg="The database field name '%s' must not be empty.",
                     args=field_name
                 )
             # Check if the field is an instance of DatabaseField.
             if not isinstance(field, DatabaseField):
                 raise error_to_raise(
-                    code=4,
+                    code=8,
                     msg="The field '%s' is not an instance of DatabaseField.",
                     args=field_name
                 )

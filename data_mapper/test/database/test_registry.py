@@ -70,11 +70,11 @@ class TestDatabaseRegistry(unittest.TestCase):
         DatabaseRegistry.clear()
 
     # =========================================================================
-    # Tests for the method clear().
+    # Tests for the method clear() and initialize().
 
-    def test_clear(self):
+    def test_clear_and_initialize(self):
         """
-        Tests the method clear().
+        Tests the method clear() and initialize().
         """
         # Test the method, given that the registry is uninitialized.
         DatabaseRegistry.clear()
