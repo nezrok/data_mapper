@@ -69,7 +69,7 @@ class MapperRegistry:
             )
 
             # Create a mapper from the given database and register it.
-            cls.registered_mappers[model] = Mapper(database, db_fields)
+            cls.registered_mappers[model] = Mapper(database, model, db_fields)
             return model
         return decorator
 

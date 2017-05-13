@@ -186,7 +186,7 @@ class TestMapperRegistry(unittest.TestCase):
 
         # Register model with valid database fields, but no given profiles.
         with self.assertRaises(GetProfileError) as context:
-            @MapperRegistry.register(db_fields={"key": DatabaseStringField()})  # NOQA
+            @MapperRegistry.register(db_fields={"k": DatabaseStringField("k")})  # NOQA
             class DummyModel(Model):
                 pass
         # We expect error code 3.
@@ -201,7 +201,7 @@ class TestMapperRegistry(unittest.TestCase):
             @MapperRegistry.register(  # NOQA
                 db_profile_name="",
                 db_fields={
-                    "key": DatabaseStringField()
+                    "key": DatabaseStringField("key")
                 }
             )
             class DummyModel(Model):
@@ -214,7 +214,7 @@ class TestMapperRegistry(unittest.TestCase):
             @MapperRegistry.register(  # NOQA
                 db_profile_name="  ",
                 db_fields={
-                    "key": DatabaseStringField()
+                    "key": DatabaseStringField("key")
                 }
             )
             class DummyModel(Model):
@@ -225,7 +225,7 @@ class TestMapperRegistry(unittest.TestCase):
         # Test valid profile name.
         # Initialize the db registry in order to have registered profiles.
         DatabaseRegistry.initialize(self.profiles_file_single_profile)
-        db_fields = {"key": DatabaseStringField()}
+        db_fields = {"key": DatabaseStringField("key")}
 
         @MapperRegistry.register(  # NOQA
             db_profile_name="my-profile",
@@ -252,7 +252,7 @@ class TestMapperRegistry(unittest.TestCase):
             @MapperRegistry.register(  # NOQA
                 db_profile="",
                 db_fields={
-                    "key": DatabaseStringField()
+                    "key": DatabaseStringField("key")
                 }
             )
             class DummyModel(Model):
@@ -265,7 +265,7 @@ class TestMapperRegistry(unittest.TestCase):
             @MapperRegistry.register(  # NOQA
                 db_profile=DatabaseProfile(None),
                 db_fields={
-                    "key": DatabaseStringField()
+                    "key": DatabaseStringField("key")
                 }
             )
             class DummyModel(Model):
@@ -278,7 +278,7 @@ class TestMapperRegistry(unittest.TestCase):
             @MapperRegistry.register(  # NOQA
                 db_profile=DatabaseProfile("MyProfile"),
                 db_fields={
-                    "key": DatabaseStringField()
+                    "key": DatabaseStringField("key")
                 }
             )
             class DummyModel(Model):
@@ -288,7 +288,7 @@ class TestMapperRegistry(unittest.TestCase):
 
         # Test valid profile.
         # Initialize the db registry in order to have registered profiles.
-        db_fields = {"key": DatabaseStringField()}
+        db_fields = {"key": DatabaseStringField("key")}
 
         @MapperRegistry.register(  # NOQA
             db_profile=DatabaseProfile("Profile", system="sqlite"),
@@ -341,7 +341,7 @@ class TestMapperRegistry(unittest.TestCase):
 
         # Test get_mapper with a registered model and registered databases.
         DatabaseRegistry.initialize()
-        db_fields = {"key": DatabaseStringField()}
+        db_fields = {"key": DatabaseStringField("key")}
         @MapperRegistry.register(  # NOQA
             db_profile=DatabaseProfile("Profile", system="sqlite"),
             db_fields=db_fields
@@ -449,6 +449,6 @@ class TestMapperRegistry(unittest.TestCase):
         self.assertEqual(context.exception.code, 8)
 
         # Validate valid database fields.
-        db_fields = {"name": DatabaseStringField()}
+        db_fields = {"name": DatabaseStringField("name")}
         validated = MapperRegistry.validate_fields(db_fields)
         self.assertEqual(db_fields, validated)

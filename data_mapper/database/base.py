@@ -22,32 +22,35 @@ class Database:
         """
         pass
 
-    def exists_db_table(self, model):
+    def exists_table(self, model):
         """
         Returns True, if there exists a table for the given model class in the
-        underyling database.
+        underlying database.
 
         Args:
             model (class of Model): The model class to process.
         Returns:
             True, if there exists a table for the given model class in the
-                underyling database; False otherwise.
+                underlying database; False otherwise.
         """
         pass
 
-    def create_db_table(self, model):
+    def create_table(self, model, database_fields):
         """
-        Creates a table for the given model in the underlying database.
+        Creates a table for the given model and the given fields in the
+        underlying database.
 
         Args:
-            model (class of Model): The model class to process.
+            model (Model): The model to process.
+            database_fields (dict of str:DatabaseField): The database fields to
+                process.
         Returns:
             True if the table was successfully created; False otherwise.
         """
         pass
 
 # =============================================================================
-# Util classes.
+# Utility classes.
 
 
 class DatabaseProfile:

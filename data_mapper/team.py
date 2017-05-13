@@ -26,13 +26,14 @@ DatabaseRegistry.initialize(
    db_profile=None,
    db_profile_name=None,
    db_fields={
-       "name": DatabaseStringField(),
-       "token": DatabaseStringField()
+       "name": DatabaseStringField("name"),
+       "token": DatabaseStringField("token")
    }
 )
 class Team(Model):
     def __init__(self):
         self.mapper = MapperRegistry.get_mapper(self.__class__)
+        # self.mapper.create_db_table()
 
 
 Team()
